@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="4" tilewidth="128" tileheight="128" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" name="LevelTwo" tilewidth="128" tileheight="128" tilecount="14" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="128" height="128" source="../images/air atas.png"/>
+  </tile>
+  <tile id="1">
+   <image width="128" height="128" source="../images/air bawah.png"/>
+  </tile>
+  <tile id="2">
+   <image width="128" height="128" source="../images/air kanan.png"/>
+  </tile>
+  <tile id="3">
+   <image width="128" height="128" source="../images/air kiri.png"/>
+  </tile>
+  <tile id="4">
+   <image width="128" height="128" source="../images/air tengah.png"/>
+  </tile>
+  <tile id="5">
+   <image width="128" height="128" source="../images/air wrap  tengah.png"/>
+  </tile>
+  <tile id="6">
+   <image width="128" height="128" source="../images/air wrap kanan.png"/>
+  </tile>
+  <tile id="7">
+   <image width="128" height="128" source="../images/air wrap kiri.png"/>
+  </tile>
+  <tile id="8">
+   <image width="128" height="128" source="../images/flower field.png"/>
+  </tile>
+  <tile id="9">
+   <image width="128" height="128" source="../images/Group 148.png"/>
+  </tile>
+  <tile id="10">
+   <image width="128" height="128" source="../images/pohon cemara.png"/>
+  </tile>
+  <tile id="11">
+   <image width="128" height="128" source="../images/pohon.png"/>
+  </tile>
+  <tile id="12">
+   <image width="128" height="128" source="../images/tanah start.png"/>
+  </tile>
+  <tile id="13">
+   <image width="128" height="128" source="../images/tanah.png"/>
+  </tile>
+ </tileset>
+ <layer id="1" name="Tile Layer 1" width="10" height="4">
+  <data encoding="csv">
+11,12,12,12,11,12,11,12,11,11,
+12,12,11,11,11,9,9,10,9,12,
+13,14,14,14,14,14,14,14,14,14,
+8,6,6,6,6,6,6,6,6,7
+</data>
+ </layer>
+</map>

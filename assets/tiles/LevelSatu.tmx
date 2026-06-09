@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="4" tilewidth="128" tileheight="128" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" name="levelSatu" tilewidth="128" tileheight="128" tilecount="40" columns="10">
+  <image source="../images/LevelSatuUltahBeri.png" width="1280" height="512"/>
+ </tileset>
+ <layer id="1" name="Tile Layer 1" width="10" height="4">
+  <data encoding="csv">
+2,2,2,2,2,2,2,2,2,2,
+11,12,33,12,13,16,17,18,36,2,
+21,23,23,23,23,26,27,28,13,2,
+33,12,32,33,13,12,33,34,31,40
+</data>
+ </layer>
+</map>

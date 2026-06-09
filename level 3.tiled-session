@@ -1,0 +1,70 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "assets/tiles/lvl 2.tmx",
+    "expandedProjectPaths": [
+        "assets/tiles",
+        ".",
+        "assets"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "assets/tiles/level 3.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assets/tiles/lvl 2.tmx": {
+            "scale": 0.47351562499999994,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 640.9503382280153,
+                "y": 256.59132156409834
+            }
+        },
+        "tanah start.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/Group 148.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "tiles/level 3.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/lvl 2.tmx": {
+            "scale": 0.33,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 592.4242424242424,
+                "y": 456.0606060606061
+            }
+        }
+    },
+    "last.imagePath": "C:/Users/lala/Downloads",
+    "map.height": 4,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 128,
+    "map.tileWidth": 128,
+    "map.width": 10,
+    "openFiles": [
+        "assets/tiles/lvl 2.tmx"
+    ],
+    "project": "level 3.tiled-project",
+    "recentFiles": [
+        "assets/tiles/lvl 2.tmx",
+        "assets/tiles/level 3.tsx",
+        "tiles/lvl 2.tmx",
+        "tiles/level 3.tsx",
+        "tiles/Group 148.tsx",
+        "tanah start.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
+}
