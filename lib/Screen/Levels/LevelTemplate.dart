@@ -1,4 +1,5 @@
 import 'package:copal/Screen/Levels/popup/popupVocab.dart';
+import 'package:copal/constants/images.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -114,7 +115,8 @@ class LevelTemplate extends FlameGame {
       commandListNotifier.value = [];
       catStateNotifier.value = catState.start;
       finishNotifier.value = false;
-      return;
+      
+        return;
     }
 
     if(catStateNotifier.value == catState.loading || commandListNotifier.value.isEmpty){
@@ -139,7 +141,7 @@ class LevelTemplate extends FlameGame {
     final catX = (cat.position.x / tileSize).round();
     final catY = (cat.position.y / tileSize).round();
 
-    if(catX == level.targetFinish.x && catY == level.targetFinish.y){
+    if(catX >= level.targetFinish.x && catY >= level.targetFinish.y){
       finishNotifier.value = true;
     }
 
@@ -169,6 +171,8 @@ class LevelOneScreen extends StatefulWidget {
 
 class _LevelOneScreenState extends State<LevelOneScreen> {
   late LevelTemplate _game;
+  int star = 3;
+
 
   @override
   void initState() {
@@ -178,12 +182,17 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
   }
 
   void _onFinish(){
+    if(_game.catStateNotifier.value == catState.start){
+      star = 3;
+    }
 
     if(_game.catStateNotifier.value == catState.finished){
       if(_game.finishNotifier.value == true){
+
+        final stars = _countStar();
         showDialog(context: context, builder: (_) => Dialog(
           backgroundColor: Colors.transparent,
-          child: PopupVocab(level : widget.level)
+          child: PopupVocab(level : widget.level, star : stars, onRestart : _game.runGame)
       ),
       barrierColor: const Color.fromARGB(140, 0, 0, 0),
       barrierDismissible: true
@@ -199,11 +208,18 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
     }
   }
   }
+
+  int _countStar(){
+    if(_game.commandListNotifier.value.length > _game.level.maksComand){
+      star = star-1;
+    }
+    return star;
+  }
   
 
   @override 
   void dispose(){
-    _game.finishNotifier.removeListener(_onFinish);
+    _game.catStateNotifier.removeListener(_onFinish);
     super.dispose();
   }
 
@@ -304,19 +320,19 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
               ValueListenableBuilder<catState>(
                 valueListenable: game.catStateNotifier, 
                 builder: (context, state, child){
-                  final playImage = 'assets/images/play.png';
+                  final playImage = AppImages.play;
                   return _cmdBtn(playImage, Color(0xffFFC400), () => game.runGame(), scaleFactor, 6);
                 }
                 ),
               
-              _cmdBtn('assets/images/kanan.png', Color(0xff73D4FF), () => game.addCommand(CatCommand.right), scaleFactor, 6),
-              _cmdBtn('assets/images/kiri.png', Color(0xffFFCEE0), () => game.addCommand(CatCommand.left), scaleFactor, 6),
-              _cmdBtn('assets/images/atas.png', Color(0xffFFF2B3), () => game.addCommand(CatCommand.up), scaleFactor, 6),
-              _cmdBtn('assets/images/bawah.png', Color(0xffBCBEFF), () => game.addCommand(CatCommand.down), scaleFactor, 6),
+              _cmdBtn(AppImages.kanan, Color(0xff73D4FF), () => game.addCommand(CatCommand.right), scaleFactor, 6),
+              _cmdBtn(AppImages.kiri, Color(0xffFFCEE0), () => game.addCommand(CatCommand.left), scaleFactor, 6),
+              _cmdBtn(AppImages.atas, Color(0xffFFF2B3), () => game.addCommand(CatCommand.up), scaleFactor, 6),
+              _cmdBtn(AppImages.bawah, Color(0xffBCBEFF), () => game.addCommand(CatCommand.down), scaleFactor, 6),
               ValueListenableBuilder<bool>(
               valueListenable: game.subNotifier, 
               builder: (context, isSubActive, child){
-                final subImage = isSubActive ? "assets/images/sub_disabled.png" : "assets/images/sub.png";
+                final subImage = isSubActive ? AppImages.subDisabled : AppImages.sub;
                 return _cmdBtn(subImage, Color(0xffFFF2DF), () => game.toggleSub(), scaleFactor, 16);
               }
             )
@@ -354,10 +370,10 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
 
   String _getImagePath(CatCommand cmd) {
     switch (cmd) {
-      case CatCommand.up: return 'assets/images/atas.png';
-      case CatCommand.down: return 'assets/images/bawah.png';
-      case CatCommand.left: return 'assets/images/kiri.png';
-      case CatCommand.right: return 'assets/images/kanan.png';
+      case CatCommand.up: return AppImages.atas;
+      case CatCommand.down: return AppImages.bawah;
+      case CatCommand.left: return AppImages.kiri;
+      case CatCommand.right: return AppImages.kanan;
     }
   }
   

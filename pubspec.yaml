@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   supabase_flutter: ^2.14.1
+  shared_preferences: ^2.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -40,6 +41,7 @@ dependencies:
   google_fonts: ^6.3.1
   font_awesome_flutter: ^10.9.1
   flame_tiled: ^3.0.5
+  go_router: ^17.0.0
 
 dev_dependencies:
   flutter_test:
@@ -91,6 +93,7 @@ flutter:
     - assets/images/kucingsenang.png
     - assets/images/kucingbelakangidle.png
     - assets/images/kucingjalanbelakang.png
+    - assets/images/pet.png
     - assets/images/home(4).png
     - assets/images/kanan.png
     - assets/images/kiri.png
@@ -110,6 +113,13 @@ flutter:
     - assets/images/star.png
     - assets/images/score.png
     - assets/images/copalFailed.png
+    - assets/images/bolt.png 
+    - assets/images/hepi.png
+    - assets/images/coins.png
+    - assets/images/foods.png
+    - assets/images/apparel.png
+    - assets/images/furniture.png
+    - assets/images/gem.png
     - assets/tiles/leveltwo.tmx  # Tambahkan baris ini
     - assets/tiles/leveldua.tsx
     - assets/tiles/lvl1Fix.tmx

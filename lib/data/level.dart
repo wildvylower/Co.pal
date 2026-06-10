@@ -13,6 +13,9 @@ class Level {
   final String vocab;
   final String vocabImage;
   final List<Vector2> subTiles;
+  final int maksComand ; 
+  final int itemAmount;
+
 
   const Level({
     required this.id,
@@ -25,7 +28,10 @@ class Level {
     this.isLocked = false,
     required this.vocab,
     required this.vocabImage,
-    required this.subTiles
+    required this.subTiles,
+    this.maksComand = 0,
+    this.itemAmount = 0
+
   });
 }
 
@@ -42,6 +48,7 @@ final List<Level> allLevels = [
     isLocked: false,
     vocab: 'TELUR',
     vocabImage: 'assets/images/telur.png',
+    maksComand : 5,
     subTiles: [
       Vector2(1,2),
       Vector2(2,2),

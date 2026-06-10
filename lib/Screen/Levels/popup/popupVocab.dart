@@ -5,10 +5,16 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'dart:async';
 import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
+import 'package:copal/Screen/Levels/popup/popupScore.dart';
+import 'package:copal/constants/images.dart';
 
 class PopupVocab extends StatefulWidget {
   final Level level;
-  const PopupVocab({Key? key, required this.level}) : super(key: key);
+  final int star;
+  final VoidCallback onRestart;
+
+
+  const PopupVocab({Key? key, required this.level, required this.star, required this.onRestart}) : super(key: key);
   @override 
   _PopupVocabState createState() => _PopupVocabState();
 }
@@ -29,11 +35,21 @@ class _PopupVocabState extends State<PopupVocab> {
           final scaleFactor = isMobile ? 1.0 : (availableWidth / 900).clamp(0.8, 1.5);
           final letters = widget.level.vocab.split('');
 
-          return Container(
+          return GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              showDialog(
+                context: context, builder: (_) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: PopupScore(level : widget.level, star : widget.star, onRestart: widget.onRestart,)
+              ),);
+            },
+            child : 
+            Container(
             padding: EdgeInsets.all(20),
             width: 500 * scaleFactor,
             decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/vocab.png'),
+              image: DecorationImage(image: AssetImage(AppImages.vocab),
               fit: BoxFit.fitHeight,
               
               )
@@ -58,7 +74,7 @@ class _PopupVocabState extends State<PopupVocab> {
                       width : 40 * scaleFactor,
                       height: 40 * scaleFactor,
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: AssetImage('assets/images/bgVocab.png'))
+                        image: DecorationImage(image: AssetImage(AppImages.bgVocab))
                       ),
                       child: Center(
                         child : Text(
@@ -80,8 +96,10 @@ class _PopupVocabState extends State<PopupVocab> {
 
               ],
             )
-            
+            )
           );
+          
+          
         },)
       );
   }

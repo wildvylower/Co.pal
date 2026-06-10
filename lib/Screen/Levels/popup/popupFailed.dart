@@ -5,6 +5,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'dart:async';
 import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
+import 'package:copal/constants/images.dart';
 
 class PopupFailed extends StatefulWidget {
   final Level level;
@@ -34,7 +35,7 @@ class _PopupFailedState extends State<PopupFailed> {
             padding: EdgeInsets.all(20),
             width: 500 * scaleFactor,
             decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/copalFailed.png'),
+              image: DecorationImage(image: AssetImage(AppImages.copalFailed),
               fit: BoxFit.fitHeight,
               
               )

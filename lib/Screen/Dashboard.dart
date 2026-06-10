@@ -5,6 +5,9 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'dart:async';
 import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
+import 'package:go_router/go_router.dart';
+import 'package:copal/constants/images.dart';
+import 'package:copal/services/pet_service.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -15,10 +18,27 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   bool isMerem = false;
   late Timer timer;
+  int coin = 0;
+  int gem = 0;
+  bool isLoading = true;
+  late VoidCallback _routerListener; 
 
   @override
   initState() {
     super.initState();
+    _loadCoinAndGem();
+    _routerListener = (){
+      if(mounted){
+        final String currentPath = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+
+        if(currentPath == '/dashboard'){
+          _loadCoinAndGem();
+        }
+      }
+    };
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      GoRouter.of(context).routerDelegate.addListener(_routerListener);
+    });
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
       if (mounted) {
         setState(() => isMerem = true);
@@ -32,8 +52,24 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
+  
+
+
+Future<void> _loadCoinAndGem() async{
+    final (coins : c, gems : g)= await PetService.getCoins();
+
+    if(mounted){
+      setState((){
+        coin = c;
+        gem = g;
+        isLoading = false;
+      });
+    }
+}
+
   @override
   void dispose() {
+    GoRouter.of(context).routerDelegate.removeListener(_routerListener);
     timer.cancel();
     super.dispose();
   }
@@ -49,7 +85,7 @@ class _DashboardState extends State<Dashboard> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/home(4).png'),
+            image: AssetImage(AppImages.home),
             fit: BoxFit.cover,
           ),
         ),
@@ -80,7 +116,7 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         //logo
                         Image.asset(
-                          'assets/images/copalhomescreen.png',
+                          AppImages.copalHomeScreen,
                           height: 80 * scaleFactor,
                         ),
                         //daily mission notif
@@ -123,7 +159,7 @@ class _DashboardState extends State<Dashboard> {
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
                                     image: AssetImage(
-                                      'assets/images/profile.png',
+                                      AppImages.profile,
                                     ),
                                   ),
                                 ),
@@ -184,7 +220,7 @@ class _DashboardState extends State<Dashboard> {
                                     color: Color(0xff7171E9),
                                   ),
                                   label: Text(
-                                    '5',
+                                    '$gem',
                                     style: TextStyle(
                                       fontSize: 16 * scaleFactor,
                                       fontWeight: FontWeight.bold,
@@ -202,7 +238,7 @@ class _DashboardState extends State<Dashboard> {
                                     color: Color(0xffFFC400),
                                   ),
                                   label: Text(
-                                    '5',
+                                    '$coin',
                                     style: TextStyle(
                                       fontSize: 16 * scaleFactor,
                                       fontWeight: FontWeight.bold,
@@ -255,7 +291,7 @@ class _DashboardState extends State<Dashboard> {
                                               children: [
                                                 Positioned.fill(
                                                   child: Image.asset(
-                                                    'assets/images/scenePet.png',
+                                                    AppImages.scenePet,
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
@@ -266,8 +302,8 @@ class _DashboardState extends State<Dashboard> {
                                                   ),
                                                   child: Image.asset(
                                                     isMerem
-                                                        ? 'assets/images/kucingmerem.png'
-                                                        : 'assets/images/kucingidle.png',
+                                                        ? AppImages.kucingMerem
+                                                        : AppImages.kucingIdle,
                                                     height: h * 0.6,
                                                     fit: BoxFit.contain,
                                                     gaplessPlayback: true,
@@ -286,13 +322,13 @@ class _DashboardState extends State<Dashboard> {
                                               alignment: Alignment.center,
                                               children: [
                                                 Image.asset(
-                                                  'assets/images/bublechat.png',
+                                                  AppImages.bubbleChat,
                                                   fit: BoxFit.contain,
                                                 ),
                                                 Positioned(
                                                   top: 15 * scaleFactor,
                                                   child: Image.asset(
-                                                    'assets/images/cake.png',
+                                                    AppImages.cake,
                                                     width: w * 0.15,
                                                     fit: BoxFit.contain,
                                                   ),
@@ -305,7 +341,11 @@ class _DashboardState extends State<Dashboard> {
                                         Positioned(
                                           right: 15 * scaleFactor,
                                           bottom: 15 * scaleFactor,
-                                          child: Container(
+                                          child: GestureDetector(
+                                            onTap :(){
+                                              context.go('/dashboard/pet');
+                                            },
+                                            child: Container(
                                             padding: EdgeInsets.all(
                                               20 * scaleFactor,
                                             ),
@@ -319,6 +359,8 @@ class _DashboardState extends State<Dashboard> {
                                               color: const Color(0xff383838),
                                             ),
                                           ),
+                                          )
+                                          
                                         ),
                                       ],
                                     );
@@ -356,7 +398,7 @@ class _DashboardState extends State<Dashboard> {
                                         children: [
                                           Flexible(
                                             child: Image.asset(
-                                              'assets/images/pestaultahberi.png',
+                                              AppImages.pestaUltahBeri,
                                               fit: BoxFit.contain,
                                             ),
                                           ),
@@ -381,13 +423,7 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) => LevelOneScreen(level : allLevels[0]),
-                                          ),
-                                        );
+                                        context.go('/dashboard/level/${allLevels[0].id}');
                                       },
                                       child: Container(
                                         padding: EdgeInsets.all(
