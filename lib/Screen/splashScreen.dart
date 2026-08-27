@@ -12,33 +12,31 @@ import 'package:copal/constants/images.dart';
 
 
 class Splash extends StatefulWidget {
-  const Splash({Key? key}) : super(key: key);
+  const Splash({super.key});
 
   @override
   State<Splash> createState() => _SplashState();
 }
 
 class _SplashState extends State<Splash> {
-  bool _isLoading = true;
+  final bool _isLoading = true;
   
   @override
   void initState() {
     super.initState();
     _checkLogin();
-    Timer(const Duration(seconds: 5), () {
-     context.go('/dashboard');
-    });
   }
 
   Future<void> _checkLogin() async {
-    try{
-      await AuthService.checkLogin();
-    }finally{
-      if(mounted){
-        setState((){
-          _isLoading = false;
-        });
-      }
+    final user = await AuthService.checkLogin();
+    await Future.delayed(const Duration(seconds: 5));
+    
+    if (!mounted) return;
+
+    if(user == null){
+      context.go('/login');
+    }else{
+      context.go('/dashboard');
     }
   }
 
@@ -51,7 +49,7 @@ class _SplashState extends State<Splash> {
     final paddingScale = isMobile ? 10.0 : (isTablet ? 40.0 : 60.0);
 
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Container(
@@ -69,6 +67,7 @@ class _SplashState extends State<Splash> {
                 child: Image.asset(
                   AppImages.splashMelek,
                   width: 500 * scaleFactor,
+                  cacheWidth: 800,
                   fit: BoxFit.contain,
                 ),
               );

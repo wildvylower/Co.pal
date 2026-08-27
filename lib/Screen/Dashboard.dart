@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,20 +9,26 @@ import 'package:copal/data/level.dart';
 import 'package:go_router/go_router.dart';
 import 'package:copal/constants/images.dart';
 import 'package:copal/services/pet_service.dart';
+import 'package:copal/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:copal/Screen/Settings.dart';
+import 'package:copal/providers/auth_provider.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key}) : super(key: key);
+class Dashboard extends ConsumerStatefulWidget {
+  const Dashboard({super.key});
   @override
-  _DashboardState createState() => _DashboardState();
+  ConsumerState<Dashboard> createState()=> _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends ConsumerState<Dashboard> {
   bool isMerem = false;
   late Timer timer;
   int coin = 0;
   int gem = 0;
+  String name = 'User';
   bool isLoading = true;
   late VoidCallback _routerListener; 
+  GoRouterDelegate? _routerDelegate;
 
   @override
   initState() {
@@ -42,6 +49,8 @@ class _DashboardState extends State<Dashboard> {
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
       if (mounted) {
         setState(() => isMerem = true);
+        _routerDelegate = GoRouter.of(context).routerDelegate;
+        _routerDelegate?.addListener((_routerListener));
 
         Future.delayed(Duration(milliseconds: 100), () {
           if (mounted) {
@@ -57,7 +66,8 @@ class _DashboardState extends State<Dashboard> {
 
 Future<void> _loadCoinAndGem() async{
     final (coins : c, gems : g)= await PetService.getCoins();
-
+    
+ 
     if(mounted){
       setState((){
         coin = c;
@@ -69,7 +79,7 @@ Future<void> _loadCoinAndGem() async{
 
   @override
   void dispose() {
-    GoRouter.of(context).routerDelegate.removeListener(_routerListener);
+    _routerDelegate?.removeListener(_routerListener);
     timer.cancel();
     super.dispose();
   }
@@ -79,9 +89,22 @@ Future<void> _loadCoinAndGem() async{
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
     final isTablet = ResponsiveBreakpoints.of(context).isTablet;
     final paddingScale = isMobile ? 10.0 : (isTablet ? 40.0 : 60.0);
+    final profile = ref.watch(userProfileProvider);
+    final userName = profile?['name'] ?? 'User';
+    final userPhoto = profile?['profile_pict'] ?? '';
+
+    String? photoUrl;
+    if(userPhoto !=null && userPhoto.isNotEmpty){
+      photoUrl = Supabase.instance.client.storage.from('profile_pict').getPublicUrl(userPhoto);
+    }
+    
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: Drawer(
+        width : MediaQuery.sizeOf(context).width / 2,
+        child: Settings(),
+      ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -109,15 +132,22 @@ Future<void> _loadCoinAndGem() async{
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         //settings icon
-                        FaIcon(
+                        IconButton(
+                          onPressed: (){
+                           Scaffold.of(context).openDrawer();
+                          }, 
+                        icon:  FaIcon(
                           FontAwesomeIcons.gear,
                           size: 40 * scaleFactor,
                           color: Color(0xff7D9A36),
-                        ),
+                        ),),
+                       
                         //logo
                         Image.asset(
                           AppImages.copalHomeScreen,
                           height: 80 * scaleFactor,
+                          cacheWidth: 730,
+                          cacheHeight: 154,
                         ),
                         //daily mission notif
                         FaIcon(
@@ -158,8 +188,10 @@ Future<void> _loadCoinAndGem() async{
                                   color: Colors.grey[300],
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: AssetImage(
-                                      AppImages.profile,
+                                    image: ResizeImage(
+                                      photoUrl != null? NetworkImage(photoUrl) :
+                                      AssetImage(AppImages.profile),
+                                      width: 150, // Ukuran di RAM dibatasi agar tidak boros
                                     ),
                                   ),
                                 ),
@@ -167,7 +199,7 @@ Future<void> _loadCoinAndGem() async{
                               SizedBox(width: 5 * scaleFactor),
                               //name
                               Text(
-                                'Ruby',
+                                userName,
                                 style: TextStyle(
                                   fontSize: 18 * scaleFactor,
                                   fontWeight: FontWeight.bold,
@@ -423,7 +455,7 @@ Future<void> _loadCoinAndGem() async{
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        context.go('/dashboard/level/${allLevels[0].id}');
+                                        context.go('/dashboard/map');
                                       },
                                       child: Container(
                                         padding: EdgeInsets.all(

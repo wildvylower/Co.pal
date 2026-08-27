@@ -42,6 +42,9 @@ dependencies:
   font_awesome_flutter: ^10.9.1
   flame_tiled: ^3.0.5
   go_router: ^17.0.0
+  flutter_riverpod: ^3.3.2
+  another_xlider: ^3.0.2
+  image_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -76,53 +79,8 @@ flutter:
   #       - asset: assets/fonts/ShantellSans-VariableFont_BNCE,INFM,SPAC,wght.ttf
   assets:
 
-    - assets/images/LevelSatuUltahBeri.png
-    - assets/images/kucingidle.png
-    - assets/images/kucingmerem.png
-    - assets/images/copalhomescreen.png
-    - assets/images/profile.png
-    - assets/images/scenePet.png
-    - assets/images/bublechat.png
-    - assets/images/cake.png
-    - assets/images/pestaultahberi.png
-    - assets/images/scenekucingmelek.png
-    - assets/images/scenekucingmerem.png
-    - assets/images/kucingjalan.png
-    - assets/images/kucingsampingjalan.png
-    - assets/images/kucingsampingidle.png
-    - assets/images/kucingsenang.png
-    - assets/images/kucingbelakangidle.png
-    - assets/images/kucingjalanbelakang.png
-    - assets/images/pet.png
-    - assets/images/home(4).png
-    - assets/images/kanan.png
-    - assets/images/kiri.png
-    - assets/images/play.png
-    - assets/images/sub.png
-    - assets/images/menu.png
-    - assets/images/sound.png
-    - assets/images/atas.png
-    - assets/images/bawah.png
-    - assets/images/sub_disabled.png
-    - assets/images/Restart.png
-    - assets/images/level1beri.png
-    - assets/images/splashmelek.png
-    - assets/images/vocab.png
-    - assets/images/telur.png
-    - assets/images/bgVocab.png
-    - assets/images/star.png
-    - assets/images/score.png
-    - assets/images/copalFailed.png
-    - assets/images/bolt.png 
-    - assets/images/hepi.png
-    - assets/images/coins.png
-    - assets/images/foods.png
-    - assets/images/apparel.png
-    - assets/images/furniture.png
-    - assets/images/gem.png
-    - assets/tiles/leveltwo.tmx  # Tambahkan baris ini
-    - assets/tiles/leveldua.tsx
-    - assets/tiles/lvl1Fix.tmx
+    - assets/images/
+    - assets/tiles/
   
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

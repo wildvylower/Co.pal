@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="4" tilewidth="128" tileheight="128" infinite="0" nextlayerid="2" nextobjectid="1">
- <tileset firstgid="1" name="level1beri" tilewidth="128" tileheight="128" tilecount="40" columns="10">
-  <image source="../images/level1beri.png" width="1280" height="512"/>
-  <tile id="20">
+ <tileset firstgid="1" name="lvl3" tilewidth="128" tileheight="128" tilecount="40" columns="10">
+  <image source="../images/lvl3.png" width="1280" height="512"/>
+  <tile id="8">
    <properties>
-    <property name="isPath" type="bool" value="true"/>
+    <property name="isWater" type="bool" value="true"/>
    </properties>
   </tile>
-  <tile id="21">
+  <tile id="16">
    <properties>
     <property name="isPath" type="bool" value="true"/>
    </properties>
@@ -30,6 +30,21 @@
   <tile id="25">
    <properties>
     <property name="isPath" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="isPath" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="isWater" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="38">
+   <properties>
+    <property name="isWater" type="bool" value="true"/>
    </properties>
   </tile>
  </tileset>

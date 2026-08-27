@@ -1,5 +1,6 @@
 import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
+import 'package:copal/data/story.dart';
 import 'package:flutter/material.dart';
 import 'Screen/Dashboard.dart';
 import 'package:flutter/services.dart';
@@ -9,27 +10,58 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Screen/splashScreen.dart';
 import 'Screen/pet.dart';
 import 'package:go_router/go_router.dart';
+import 'Screen/login.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:copal/providers/auth_provider.dart';
+import 'Screen/Levels/map.dart';
 
 
 final GoRouter _router = GoRouter(
+  refreshListenable: AuthNotifier(),
+  redirect :(context, state){
+    final session = Supabase.instance.client.auth.currentSession;
+    final loggedIn = session != null;
+    final toLogin = state.matchedLocation == '/login';
+    final toSplash = state.matchedLocation =='/';
+    if(!loggedIn && !toLogin && !toSplash){
+      return '/login';
+    }
+    if(loggedIn &&( toLogin || toSplash)){
+      return '/dashboard';
+    }
+    return null;
+ 
+  },
   routes : [
     GoRoute(
       path : '/',
       builder: (context, state) => const Splash(),
     ),
+    GoRoute( 
+      path: '/login',
+      builder: (context, state) => const Login(),
+    ),
     GoRoute(
       path: '/dashboard',
       builder: (context, state) => Dashboard(),
       routes: [
-        GoRoute(
+        GoRoute(path: 'map',
+        builder: (context, state) => MapTemplate(story: stories[0]),
+        routes: [
+            GoRoute(
           path: 'level/:id',
           builder: (context, state){
             final idString = state.pathParameters['id'];
             final id = int.tryParse(idString ?? '1');
             final currentLevel = allLevels.firstWhere((lvl)=>
             lvl.id==id);
-            return LevelOneScreen(level:currentLevel);
+            return LevelOneScreen(
+              key: ValueKey(currentLevel.id),
+              level: currentLevel,
+            );
           }
+        ),
+        ]
         ),
         GoRoute(
           path: 'pet',
@@ -50,10 +82,13 @@ void main() async {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-  runApp(MyApp());
+  runApp(
+    ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -62,15 +97,23 @@ class MyApp extends StatelessWidget {
           (context, child) => ResponsiveBreakpoints.builder(
             child: child!,
             breakpoints: [
-              const Breakpoint(start: 0, end: 700, name: MOBILE),
-              const Breakpoint(start: 701, end: 1100, name: TABLET),
-              const Breakpoint(start: 1101, end: 1920, name: DESKTOP),
+              const Breakpoint(start: 0, end: 900, name: MOBILE),
+              const Breakpoint(start: 901, end: 1200, name: TABLET),
+              const Breakpoint(start: 1201, end: 1920, name: DESKTOP),
             ],
           ),
       title: 'Copal App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.shantellSansTextTheme(),
+        colorScheme: const ColorScheme.light(
+          onSurface: Color(0xFF383838), // Hitam
+          onPrimary: Color(0xFFFFFFFF), // Putih
+          secondary: Color(0xFF705050), // Coklat
+        ),
+        textTheme: GoogleFonts.shantellSansTextTheme().apply(
+          bodyColor: const Color(0xFF383838),
+          displayColor: const Color(0xFF383838),
+        ),
       ),
     );
   }

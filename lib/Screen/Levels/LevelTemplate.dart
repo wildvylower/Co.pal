@@ -10,20 +10,27 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:copal/data/level.dart';
 import 'package:copal/Screen/Levels/popup/popupFailed.dart';
+import 'package:copal/Screen/Levels/popup/popupScore.dart';
+import 'package:copal/Screen/Levels/popup/rewardPopup.dart';
+import 'package:go_router/go_router.dart';
 
 enum CatCommand { up, down, left, right }
-enum catState {start, loading, finished}
+enum catState {start, loading, finished, paused}
+enum catAnimation{start, idleDepan, idleSamping, jalanDepan, jalanSamping, jalanBelakang, tenggelam}
 
 class LevelTemplate extends FlameGame {
   final Level level;
   LevelTemplate({required this.level});
-
+  late TiledComponent levelMap;
   late Vector2 catStartPosition;
   late Vector2 targetPosition;
-  late SpriteComponent cat;
+  late SpriteAnimationGroupComponent cat;
+  late List<Sprite> spriteTenggelam;
   final ValueNotifier<List<CatCommand>> commandListNotifier = ValueNotifier([]);
   final ValueNotifier<bool> subNotifier =  ValueNotifier(false);
   final Component subContainer = Component();
+
+ 
 
   final ValueNotifier<bool> soundNotifier = ValueNotifier(false);
   bool isMoving = false;
@@ -33,13 +40,19 @@ class LevelTemplate extends FlameGame {
   final ValueNotifier<bool> finishNotifier = ValueNotifier(false);
   final double tileSize = 90;
 
+  bool isWater = false;
+  bool isPath = true;
+
+
+
   @override
   Color backgroundColor() => const Color(0xffFFF2B3);
 
   @override
   Future<void> onLoad() async {
-    final levelMap = await TiledComponent.load(level.tileMapPath, Vector2.all(tileSize));
+    levelMap = await TiledComponent.load(level.tileMapPath, Vector2.all(tileSize));
     add(levelMap);
+    String character = "kucing";
 
     camera = CameraComponent.withFixedResolution(
       width: tileSize * 10,
@@ -47,20 +60,110 @@ class LevelTemplate extends FlameGame {
     );
     camera.viewfinder.anchor = Anchor.topLeft;
 
-    cat = SpriteComponent()
-      ..sprite = await loadSprite(level.Sprite)
-      ..size = Vector2.all(tileSize * 0.5)
-      ..position = Vector2((level.catStartPosition.x * tileSize), (level.catStartPosition.y * tileSize));
+    final startPose = SpriteAnimation.spriteList(
+      [
+        await loadSprite(level.Sprite)
+      ],
+      stepTime: 0.2
+    );
+
+    final idleDepan = SpriteAnimation.spriteList([
+      await loadSprite("${character}_Idle.png")
+    ], stepTime: 0.2);
+
+    final idleSamping = SpriteAnimation.spriteList([
+      await loadSprite("${character}_Idle_Samping.png")
+    ], stepTime: 0.2);
+
+    final jalanDepan = SpriteAnimation.spriteList([
+      await loadSprite("${character}_Jalan_Depan.png"),
+      await loadSprite("${character}_Idle.png")
+    ], stepTime: 0.2);
+
+    final jalanBelakang = SpriteAnimation.spriteList([
+      await loadSprite("${character}_Jalan_Belakang.png"),
+      await loadSprite("${character}_Belakang_Idle.png")
+
+    ], stepTime: 0.2);
+
+    final jalanSamping = SpriteAnimation.spriteList([
+      await loadSprite("${character}_Jalan_Samping.png"),
+      await loadSprite("${character}_Idle_Samping.png")
+    ], stepTime: 0.2);
+
+    final tenggelam = SpriteAnimation.spriteList([
+      await loadSprite("${character}Tenggelam1.png"),
+      await loadSprite("${character}Tenggelam2.png"),
+      await loadSprite("${character}Tenggelam3.png")
+    ], stepTime: 0.2);
+
+
+    cat = SpriteAnimationGroupComponent<catAnimation>(
+      animations: {
+        catAnimation.start: startPose,
+        catAnimation.idleDepan : idleDepan,
+        catAnimation.idleSamping : idleSamping,
+        catAnimation.jalanDepan : jalanDepan,
+        catAnimation.jalanSamping : jalanSamping,
+        catAnimation.jalanBelakang : jalanBelakang,
+        catAnimation.tenggelam : tenggelam,
+      },
+      current: catAnimation.start,
+      size: Vector2.all(tileSize * 0.5),
+      position: Vector2((level.catStartPosition.x * tileSize), (level.catStartPosition.y * tileSize))
+    );
     add(cat);
 
     catStartPosition = cat.position.clone();
+  
   }
+
 
   void addCommand(CatCommand cmd) {
     if (catStateNotifier.value == catState.start) {
       commandListNotifier.value = [...commandListNotifier.value, cmd];
     }
   }
+
+  bool getTileProperty(int targetX, int targetY, String propertyName){
+      final tileLayer = levelMap.tileMap.getLayer<TileLayer>('Tile Layer 1');
+    if(tileLayer != null && tileLayer.tileData != null){
+      if (targetY < 0 || targetY >= tileLayer.tileData!.length) return false;
+      if (targetX < 0 || targetX >= tileLayer.tileData![0].length) return false;
+      
+      final gid = tileLayer.tileData![targetY][targetX].tile;
+      if(gid!=0){
+        final tileDetail = levelMap.tileMap.map.tileByGid(gid);
+        return tileDetail?.properties.getValue<bool>(propertyName)??false; }
+      
+    }
+    return false;
+  }
+
+  Future<bool> checkWater(int targetX, int targetY) async {
+
+        isWater = getTileProperty(targetX, targetY, 'isWater');
+
+        if(isWater){
+          cat.current = catAnimation.tenggelam;
+          await Future.delayed(const Duration(seconds: 1));
+          
+          finishNotifier.value = false;
+          return true; 
+        }
+        return false;
+  }
+
+  Future<bool> checkPath(int targetX, int targetY) async{
+    isPath = getTileProperty(targetX, targetY, 'isPath');
+    if(!isPath){
+      finishNotifier.value = false;
+      return true;
+    }
+    return false;
+  }
+
+  
 
   Future<void> showSub()async{
 
@@ -111,12 +214,9 @@ class LevelTemplate extends FlameGame {
 
 
     if(catStateNotifier.value == catState.finished){
-      cat.position =  catStartPosition.clone();
+      Reset();
       commandListNotifier.value = [];
-      catStateNotifier.value = catState.start;
-      finishNotifier.value = false;
-      
-        return;
+      return;
     }
 
     if(catStateNotifier.value == catState.loading || commandListNotifier.value.isEmpty){
@@ -126,23 +226,128 @@ class LevelTemplate extends FlameGame {
 
     catStateNotifier.value = catState.loading;
     final currentCommands = List<CatCommand>.from(commandListNotifier.value);
-    for (var cmd in currentCommands) {
-      await moveCat(cmd);
-      await Future.delayed(const Duration(milliseconds: 600));
+    int i =0;
+    outerLoop: for (var cmd in currentCommands) {
+      
+  
+      while (catStateNotifier.value == catState.paused) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      if (catStateNotifier.value == catState.start) {
+        return;
+      }
+
+      if(level.ujung.isNotEmpty){
+        while(true){
+          await moveCat(cmd);
+          await Future.delayed(const Duration(milliseconds: 600));
+          final catX = (cat.position.x / tileSize).round();
+          final catY = (cat.position.y / tileSize).round();
+         
+          bool isDrowning = await checkWater(catX, catY);
+        if(isDrowning){
+          break outerLoop; 
+        }
+      
+        if(catStateNotifier.value == catState.finished){
+          break outerLoop;
+        }
+
+        bool isOutPath = await checkPath(catX, catY);
+        if(isOutPath){
+          break outerLoop;
+        }
+
+        checkFinish();
+
+        
+        if(finishNotifier.value){
+          break outerLoop;
+        }
+        if(catX == level.ujung[i].x && catY == level.ujung[i].y){
+          i++;
+          break;
+          
+        }
+          
+        }
+      } else{
+        await moveCat(cmd);
+        await Future.delayed(const Duration(milliseconds: 600));
+        final catX = (cat.position.x / tileSize).round();
+        final catY = (cat.position.y / tileSize).round();
+      
+        bool isDrowning = await checkWater(catX, catY);
+        if(isDrowning){
+          break outerLoop; 
+        }
+      
+        if(catStateNotifier.value == catState.finished){
+          break outerLoop;
+        }
+
+        bool isOutPath = await checkPath(catX, catY);
+        if(isOutPath){
+          break outerLoop;
+        }
+
+        checkFinish();
+        if(finishNotifier.value){
+          break outerLoop;
+        }
     }
     
     
-    checkFinish();
-    catStateNotifier.value = catState.finished;
+   
+      }
+
+      if(catStateNotifier.value != catState.start){
+        catStateNotifier.value = catState.finished;
+      }
+      
+      
+    
     
   }
+
+  void Reset(){
+    
+    cat.position = catStartPosition.clone();
+    cat.current = catAnimation.start;
+    if(cat.isFlippedHorizontally){
+      cat.flipHorizontallyAroundCenter();
+    }
+    if(!cat.isMounted){
+      add(cat);
+    }
+    catStateNotifier.value = catState.start;
+    finishNotifier.value = false;
+    
+
+  }
+
+  void pauseGame(){
+    if(catStateNotifier.value == catState.loading){
+      catStateNotifier.value = catState.paused;
+    }
+  }
+
+  void resumeGame(){
+    if(catStateNotifier.value == catState.paused){
+      catStateNotifier.value = catState.loading;
+    }
+  }
+
+  
 
   void checkFinish(){
     final catX = (cat.position.x / tileSize).round();
     final catY = (cat.position.y / tileSize).round();
 
-    if(catX >= level.targetFinish.x && catY >= level.targetFinish.y){
+    if(catX == level.targetFinish.x && catY == level.targetFinish.y){
       finishNotifier.value = true;
+      cat.current = catAnimation.start;
     }
 
   }
@@ -150,10 +355,12 @@ class LevelTemplate extends FlameGame {
   Future<void> moveCat(CatCommand cmd) async {
     Vector2 delta = Vector2.zero();
     switch (cmd) {
-      case CatCommand.up: delta = Vector2(0, -tileSize); break;
-      case CatCommand.down: delta = Vector2(0, tileSize); break;
-      case CatCommand.left: delta = Vector2(-tileSize, 0); break;
-      case CatCommand.right: delta = Vector2(tileSize, 0); break;
+      case CatCommand.up: delta = Vector2(0, -tileSize);cat.current = catAnimation.jalanBelakang; break;
+      case CatCommand.down: delta = Vector2(0, tileSize); cat.current = catAnimation.jalanDepan; break;
+      case CatCommand.left: delta = Vector2(-tileSize, 0); cat.current = catAnimation.jalanSamping; 
+      if(!cat.isFlippedHorizontally) cat.flipHorizontallyAroundCenter(); break;
+      case CatCommand.right: delta = Vector2(tileSize, 0); cat.current = catAnimation.jalanSamping;
+      if(cat.isFlippedHorizontally) cat.flipHorizontallyAroundCenter(); break;
     }
     cat.add(MoveByEffect(delta, EffectController(duration: 0.5)));
   }
@@ -163,7 +370,7 @@ class LevelTemplate extends FlameGame {
 
 class LevelOneScreen extends StatefulWidget {
   final Level level;
-  const LevelOneScreen({Key? key, required this.level}) : super(key: key);
+  const LevelOneScreen({super.key, required this.level});
 
   @override
   State<LevelOneScreen> createState() => _LevelOneScreenState();
@@ -196,7 +403,40 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
       ),
       barrierColor: const Color.fromARGB(140, 0, 0, 0),
       barrierDismissible: true
-      );
+      ).then((_){
+        showDialog(
+                context: context, builder: (_) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: PopupScore(level : widget.level, star : stars, onRestart: _game.runGame,)
+              ),
+              barrierDismissible: true,
+        ).then((result){
+          if (result == 'restart' || result == 'home') return;
+
+          void goToNextLevel() {
+            final currentIndex = allLevels.indexWhere((lvl) => lvl.id == widget.level.id);
+            if (currentIndex != -1 && currentIndex + 1 < allLevels.length) {
+              final nextLevel = allLevels[currentIndex + 1];
+              context.replace('/dashboard/map/level/${nextLevel.id}');
+            } else {
+              context.replace('/dashboard');
+            }
+          }
+
+          if (widget.level.rewardImage != null) {
+            showDialog(
+              context: context, builder: (_) => Dialog(
+                backgroundColor: Colors.transparent,
+                child: RewardPopup(level: widget.level)
+              )
+            ).then((_) {
+               goToNextLevel();
+            });
+          } else {
+             goToNextLevel();
+          }
+        });
+      });
     } else if(_game.finishNotifier.value == false){
       showDialog(context: context, builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
@@ -214,6 +454,18 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
       star = star-1;
     }
     return star;
+  }
+
+  void removeComand(int index){
+    if(_game.catStateNotifier.value != catState.start){
+      _game.Reset();
+    }
+    if(_game.catStateNotifier.value == catState.start){
+      final currentComand = List<CatCommand>.from(_game.commandListNotifier.value);
+      currentComand.removeAt(index);
+
+      _game.commandListNotifier.value = currentComand;
+    }
   }
   
 
@@ -288,19 +540,46 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15 * scaleFactor),
                 ),
-                child: ListView.builder(
+                child: ReorderableListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 10 * scaleFactor),
                   itemCount: commands.length,
+                  onReorder: (oldIndex, newIndex) {
+                    if(_game.catStateNotifier.value != catState.start){
+                      _game.Reset();
+                    }
+                    if(_game.catStateNotifier.value == catState.start){
+                      if(oldIndex < newIndex){
+                        newIndex -= 1;
+                      }
+                      final currentComand = List<CatCommand>.from(_game.commandListNotifier.value);
+                      final command = currentComand.removeAt(oldIndex);
+                      currentComand.insert(newIndex, command);
+                      _game.commandListNotifier.value = currentComand;
+                    }
+                  },
+                  buildDefaultDragHandles: false,
                   itemBuilder: (context, index) {
-                    return Padding(
+                    return ReorderableDragStartListener(
+                      key: ValueKey('$index-${commands[index]}'),
+                      index: index,
+                      child: Padding(
                       padding: EdgeInsets.all(8.0 * scaleFactor),
-                      child: Image.asset(
+                      child: GestureDetector(
+                        onTap : (){
+                          removeComand(index);
+                        },
+                        child :  Image.asset(
                         _getImagePath(commands[index]),
                         width: 30 * scaleFactor,
                         height: 30 * scaleFactor,
                       ),
-                    );
+                      )
+                      
+                     
+                    )
+                      );
+                    
                   },
                 ),
               );
@@ -321,7 +600,16 @@ class _LevelOneScreenState extends State<LevelOneScreen> {
                 valueListenable: game.catStateNotifier, 
                 builder: (context, state, child){
                   final playImage = AppImages.play;
-                  return _cmdBtn(playImage, Color(0xffFFC400), () => game.runGame(), scaleFactor, 6);
+                  final paused = AppImages.pause;
+                  if(state==catState.loading) {
+                    return _cmdBtn(paused, Color(0xffFFC400), () => game.pauseGame(), scaleFactor, 6);
+                    
+                  } else if( state==catState.paused){
+                    return _cmdBtn(playImage, Color(0xffFFC400), () => game.resumeGame(), scaleFactor, 6);
+                  }else {
+                    return _cmdBtn(playImage, Color(0xffFFC400), () => game.runGame(), scaleFactor, 6);
+                  }
+                  
                 }
                 ),
               

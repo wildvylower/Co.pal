@@ -7,6 +7,8 @@ import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
 import 'package:copal/Screen/Levels/popup/popupScore.dart';
 import 'package:copal/constants/images.dart';
+import 'package:copal/utils/scale_helper.dart';
+import 'package:copal/Screen/Levels/popup/rewardPopup.dart';
 
 class PopupVocab extends StatefulWidget {
   final Level level;
@@ -14,7 +16,7 @@ class PopupVocab extends StatefulWidget {
   final VoidCallback onRestart;
 
 
-  const PopupVocab({Key? key, required this.level, required this.star, required this.onRestart}) : super(key: key);
+  const PopupVocab({super.key, required this.level, required this.star, required this.onRestart});
   @override 
   _PopupVocabState createState() => _PopupVocabState();
 }
@@ -31,27 +33,21 @@ class _PopupVocabState extends State<PopupVocab> {
 
     return  SafeArea(
         child : LayoutBuilder(builder: (context, constraints){
-          final availableWidth = constraints.maxWidth;
-          final scaleFactor = isMobile ? 1.0 : (availableWidth / 900).clamp(0.8, 1.5);
+          final scaleFactor = getGlobalScale(context);
           final letters = widget.level.vocab.split('');
 
           return GestureDetector(
             onTap: () {
               Navigator.pop(context);
-              showDialog(
-                context: context, builder: (_) => Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: PopupScore(level : widget.level, star : widget.star, onRestart: widget.onRestart,)
-              ),);
             },
             child : 
             Container(
             padding: EdgeInsets.all(20),
             width: 500 * scaleFactor,
             decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage(AppImages.vocab),
-              fit: BoxFit.fitHeight,
-              
+              image: DecorationImage(
+                image: ResizeImage(const AssetImage(AppImages.vocab), width: 600),
+                fit: BoxFit.contain,
               )
             ),
             child: Column(
@@ -59,7 +55,8 @@ class _PopupVocabState extends State<PopupVocab> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(widget.level.vocabImage,
-                width: 100 * scaleFactor,),
+                width: 100 * scaleFactor,
+                cacheWidth: 300,),
                 
 
                 SizedBox(height: 20 * scaleFactor,),
@@ -74,7 +71,9 @@ class _PopupVocabState extends State<PopupVocab> {
                       width : 40 * scaleFactor,
                       height: 40 * scaleFactor,
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: AssetImage(AppImages.bgVocab))
+                        image: DecorationImage(
+                          image: ResizeImage(const AssetImage(AppImages.bgVocab), width: 200)
+                        )
                       ),
                       child: Center(
                         child : Text(

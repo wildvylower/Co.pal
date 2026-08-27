@@ -26,13 +26,7 @@ class AppImages {
   static const String home = '$_path/home(4).png';
   static const String kanan = '$_path/kanan.png';
   static const String kiri = '$_path/kiri.png';
-  static const String kucingBelakangIdle = '$_path/kucingbelakangidle.png';
-  static const String kucingIdle = '$_path/kucingidle.png';
-  static const String kucingJalan = '$_path/kucingjalan.png';
-  static const String kucingJalanBelakang = '$_path/kucingjalanbelakang.png';
   static const String kucingMerem = '$_path/kucingmerem.png';
-  static const String kucingSampingIdle = '$_path/kucingsampingidle.png';
-  static const String kucingSampingJalan = '$_path/kucingsampingjalan.png';
   static const String kucingSenang = '$_path/kucingsenang.png';
   static const String level1Beri = '$_path/level1beri.png';
   static const String menu = '$_path/menu.png';
@@ -59,4 +53,30 @@ class AppImages {
   static const String apparel = '$_path/apparel.png';
   static const String foods = '$_path/foods.png';
   static const String furniture = '$_path/furniture.png';
+  static const String bear = '$_path/bear.png';
+  static const String mapBeginner = '$_path/map.png';
+  static const String mapTwo = '$_path/map2.png';
+  static const String mapThree = '$_path/map3.png';
+  static const String tobeli = '$_path/tobeli.png';
+  static const String pause = '$_path/pause.png';
+  static const String reward = '$_path/reward.png';
+  static const String login = '$_path/login.png';
+  static const String setting = '$_path/setting.png';
+  static const String settingBg = '$_path/settingBg.png';
+  static const String part2 = '$_path/part2.png';
+  static const String gearKanan = '$_path/gearKanan.png';
+  static const String gearKiri = '$_path/gearKiri.png';
+  static const String kucingTenggelam1 = "$_path/kucingTenggelam1.png";
+  static const String kucingTenggelam2 = "$_path/kucingTenggelam2.png";
+  static const String kucingTenggelam3 = "$_path/kucingTenggelam3.png";
+   static const String lock = "$_path/Lock.png";
+  static const String kayu = "$_path/kayu.png";
+  // Cat Sprites
+  static const String kucingIdle = '$_path/kucing_Idle.png';
+  static const String kucingIdleSamping = '$_path/kucing_Idle_Samping.png';
+  static const String kucingBelakangIdle = '$_path/kucing_Belakang_Idle.png';
+  static const String kucingJalanDepan = '$_path/kucing_Jalan_Depan.png';
+  static const String kucingJalanBelakang = '$_path/kucing_Jalan_Belakang.png';
+  static const String kucingJalanSamping = '$_path/kucing_Jalan_Samping.png';
+ 
 }

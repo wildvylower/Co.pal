@@ -1,3 +1,4 @@
+import 'package:copal/services/level_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,18 +8,35 @@ import 'package:copal/Screen/Levels/LevelTemplate.dart';
 import 'package:copal/data/level.dart';
 import 'package:go_router/go_router.dart';
 import 'package:copal/constants/images.dart';
+import 'package:copal/Screen/Levels/popup/rewardPopup.dart';
+import 'package:copal/utils/scale_helper.dart';
 
 class PopupScore extends StatefulWidget {
   final Level level;
   final int star;
   final VoidCallback onRestart;
-  const PopupScore({Key? key, required this.level, required this.star, required this.onRestart}) : super(key: key);
+  const PopupScore({super.key, required this.level, required this.star, required this.onRestart});
   @override 
   _PopupScoreState createState() => _PopupScoreState();
 }
 
 class _PopupScoreState extends State<PopupScore> {
   
+ @override 
+ void initState() {
+    super.initState();
+    _saveProgress();
+  }
+
+  Future<void> _saveProgress() async {
+    await LevelService.saveLevelProgress(
+      story_id: widget.level.id_story, 
+      level_id: widget.level.id, 
+      stars: widget.star, 
+      is_completed: true);
+
+  }
+
 
   
   @override
@@ -29,17 +47,16 @@ class _PopupScoreState extends State<PopupScore> {
 
     return  SafeArea(
         child : LayoutBuilder(builder: (context, constraints){
-          final availableWidth = constraints.maxWidth;
-          final scaleFactor = isMobile ? 1.0 : (availableWidth / 900).clamp(0.8, 1.5);
+          final scaleFactor = getGlobalScale(context);
           
 
           return Container(
             padding: EdgeInsets.only(top:100 * scaleFactor, left: 20 * scaleFactor , right: 20 * scaleFactor, bottom: 20 * scaleFactor),
             width: 500 * scaleFactor,
             decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage(AppImages.score),
-              fit: BoxFit.fitHeight,
-              
+              image: DecorationImage(
+                image: ResizeImage(const AssetImage(AppImages.score), width: 600),
+                fit: BoxFit.contain,
               )
             ),
             child: Column(
@@ -59,6 +76,7 @@ class _PopupScoreState extends State<PopupScore> {
                     child : Image.asset(AppImages.star,
                     width: isMid ? 60 * scaleFactor : 50 * scaleFactor,
                     height: isMid ? 60 * scaleFactor : 50 * scaleFactor,
+                    cacheWidth: 200,
                     )
                     
                     );
@@ -109,7 +127,7 @@ class _PopupScoreState extends State<PopupScore> {
                   children: [
                     GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context, 'restart');
                     widget.onRestart();
                   },
                   child: Container(
@@ -131,8 +149,8 @@ class _PopupScoreState extends State<PopupScore> {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
-                    context.go('/dashboard');
+                    Navigator.pop(context, 'home');
+                    context.replace('/dashboard');
                   },
                   child: Container(
                     width: 60*scaleFactor,
@@ -153,8 +171,7 @@ class _PopupScoreState extends State<PopupScore> {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
-                    widget.onRestart();
+                    Navigator.pop(context, 'next');
                   },
                   child: Container(
                      width: 60*scaleFactor,
